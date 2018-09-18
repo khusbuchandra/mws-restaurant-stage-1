@@ -1,10 +1,12 @@
 
 import idb from "idb";
 
-const dbPromise = idb.open("mws-restaurant-review", 1, upgradeDB => {
+const dbPromise = idb.open("mws-restaurant-review", 2, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
       upgradeDB.createObjectStore("restaurants", { keyPath: "id" });
+    case 1:
+      upgradeDB.createObjectStore("reviews", { keyPath: "id" });
   }
 });
 const cacheName = 'mws-restautrant-cache-v3',
@@ -23,7 +25,7 @@ const cacheName = 'mws-restautrant-cache-v3',
     // '/img/7.jpg',
     // '/img/8.jpg',
     // '/img/9.jpg',
-    // '/img/10.jpg',
+    '/img/ImageN-A.png',
     '/js/dbhelper.js',
     '/js/register.js',
     '/js/main.js',
@@ -136,6 +138,9 @@ const handleNonAPIRequest = (event) => {
         })
     })
       .catch(error => {
+        if (event.request.url.indexOf(".jpg") > -1) {
+          return caches.match("/img/ImageN-A.png");
+        }
         console.log('Error in the fetch event: ', error);
         return;
       })
