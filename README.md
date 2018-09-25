@@ -28,5 +28,20 @@ This repository uses [leafletjs](https://leafletjs.com/) with [Mapbox](https://w
 
 Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write. 
 
+### To start the project
 
+This project requires that node.js and npm to be installed. Please install those first. Additionally, this project depends on a separate project provided by Udacity to create an API end-point. This project is available on  . Please follow the instructions there.
+
+To run the project:
+
+In the terminal, navigate to this project folder.
+
+run -> npm install 
+
+run -> gulp default
+
+Navigate to build folder.
+run -> python3 -m http.server 8000
+ If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
+With your server running, visit the site: http://localhost:8000 and explore some restaurants.
 
