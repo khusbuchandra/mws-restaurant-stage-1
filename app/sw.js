@@ -71,19 +71,25 @@ self.addEventListener('activate', event => {
 
 
 self.addEventListener('fetch', event => {
-  console.log("Fetching cache ...", event);
+  
   // let cacheRequest = event.request;
-  let cacheURLObj = new URL(event.request.url);
-  // if (event.request.url.indexOf("restaurant.html") > -1) {
-  //   cacheRequest = new Request("restaurant.html");
-  // }
-
-  if (cacheURLObj.port === "1337") {
-    const UrlPart = cacheURLObj.pathname.split('/');
-    const id =
-    UrlPart[UrlPart.length - 1] === "restaurants"
-        ? "-1"
-        : UrlPart[UrlPart.length - 1];
+  const checkURL = new URL(event.request.url);
+  if (checkURL.port === "1337") {
+    const parts = checkURL.pathname.split("/");
+    let id = checkURL
+      .searchParams
+      .get("restaurant_id") - 0;
+    if (!id) {
+      if (checkURL.pathname.indexOf("restaurants")) {
+        id = parts[parts.length - 1] === "restaurants"
+          ? "-1"
+          : parts[parts.length - 1];
+      } else {
+        id = checkURL
+          .searchParams
+          .get("restaurant_id");
+      }
+    }
     handleAPIRequest(event, id);
   }
   else {
@@ -92,13 +98,16 @@ self.addEventListener('fetch', event => {
 });
 
 const handleAPIRequest = (event, id) => {
-  if (event.request.method !== "GET") {
-    return fetch(event.request)
-      .then(response => response.json())
-      .then(json => {return json});
-  }
- 
-  if (event.request.url.indexOf("reviews") > -1) {
+  // if (event.request.method !== "GET") {
+  //   console.log("In Sw doing Post")
+  //   return fetch(event.request)
+  //     .then(response => response.json())
+  //     .then(json => {return json});
+  //   //  event.respondWith(fetch(event.request) .then(response => response.json())
+  //   //  .then(json => {return json}))
+  // }
+  if (event.request.method == "GET"){
+  if ( event.request.url.indexOf("reviews") > -1) {
     event.respondWith(dbPromise.then(db => {
     return db
       .transaction("reviews")
@@ -106,6 +115,7 @@ const handleAPIRequest = (event, id) => {
       .index("restaurant_id")
       .getAll(id);
   }).then(data => {
+    console.log("Fetch for get ReviewAPI request");
     return (data.length && data) || fetch(event.request)
       .then(fetchResponse => fetchResponse.json())
       .then(data => {
@@ -131,6 +141,7 @@ const handleAPIRequest = (event, id) => {
     handleRestaurantAPIRequest(event, id);
   }
 }
+}
 
 const handleRestaurantAPIRequest = (event, id) => {
   event.respondWith(
@@ -142,7 +153,9 @@ const handleRestaurantAPIRequest = (event, id) => {
           .get(id);
       })
       .then(data => {
+        console.log("Fetch for get handleRestaurantAPIRequest request");
         return (
+         
           (data && data.data) ||
           fetch(event.request)
             .then(fetchResponse => fetchResponse.json())
@@ -172,6 +185,7 @@ const handleNonAPIRequest = (event) => {
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) return response;
+      console.log("Fetch for get handleNonAPIRequest request");
       return fetch(event.request)
         .then(networkResponse => {
           if (networkResponse === 404) return;

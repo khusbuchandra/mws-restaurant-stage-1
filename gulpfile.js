@@ -93,7 +93,7 @@ gulp.task("html", gulp.series("css", "js","dbhelper", "sw", () => {
                 $.htmlmin({
                     collapseWhitespace: true,
                     minifyCSS: true,
-                    minifyJS: { compress: { } },
+                    minifyJS: { compress: {drop_console: true } },
                     processConditionalComments: true,
                     removeComments: true,
                     removeEmptyAttributes: true,

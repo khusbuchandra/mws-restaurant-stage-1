@@ -73,6 +73,7 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
     const image = document.getElementById('restaurant-img');
     image.className = 'restaurant-img'
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.alt = `This is an image of the ${restaurant.name} restaurant`;
     
   }
 
@@ -128,7 +129,7 @@ const getParameterByName = (name, url) => {
     const name = document.getElementById("reviewer").value;
     const rating = document.getElementById("rating").value - 0;
     const comment = document.getElementById("comments").value;
-    // const btn = document.getElementById("review-submit");
+    const btn = document.getElementById("review-submit");
     //  btn.onclick = null;
 
     console.log(`Restaurant Id: ${self.restaurant.id} Reviewer: ${name} Rating : ${rating} Comments: ${comment} `)
@@ -138,10 +139,10 @@ const getParameterByName = (name, url) => {
       if (error) {
         console.log("Error while adding review")
       }
-    //   btn.onclick = addReview;
+      btn.addEventListener("click", addReview);
+      // btn.onclick = addReview;
       // Update the button onclick event
-      window.location.href = window.location.origin + "/restaurant.html?id=" + self.restaurant.id;
-     return false;
+      window.location.href = "/restaurant.html?id=" + self.restaurant.id;
       
     });
   }

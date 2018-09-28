@@ -30,11 +30,13 @@ const initMap = () => {
         id: 'mapbox.streets'    
       }).addTo(newMap);
       fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+      // DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
   });
+  console.log("Restaurant_info load started")
+  DBHelper.pendingQueuedData();
 }  
-
+ 
 
 /**
  * Get current restaurant from page URL.
@@ -100,6 +102,7 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.alt = `This is an image of the ${restaurant.name} restaurant`;
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;

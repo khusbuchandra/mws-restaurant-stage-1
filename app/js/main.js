@@ -114,18 +114,7 @@ const initMap = () => {
   updateRestaurants();
   DBHelper.pendingQueuedData();
 }
-/* window.initMap = () => {
-  let loc = {
-    lat: 40.722216,
-    lng: -73.987501
-  };
-  self.map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 12,
-    center: loc,
-    scrollwheel: false
-  });
-  updateRestaurants();
-} */
+
 
 /**
  * Update page and map for current restaurants.
@@ -189,7 +178,7 @@ const createRestaurantHTML = (restaurant) => {
   image.src = imageURL;
   image["data-src"] = imageURL;
   image["data-srcset"] = imageURL;
-  image.setAttribute('alt', restaurant.name +  + " restaurant promotional image");
+  image.setAttribute('alt', `This is an image of the ${restaurant.name} restaurant`);
   li.append(image);
 
   const name = document.createElement('h1');

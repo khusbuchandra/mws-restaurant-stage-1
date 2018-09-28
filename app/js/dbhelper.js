@@ -188,22 +188,13 @@ class DBHelper {
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
       {
         title: restaurant.name,
-        alt: restaurant.name,
+        alt:  `This is an image of the ${restaurant.name} restaurant`,
         url: DBHelper.urlForRestaurant(restaurant)
       })
     marker.addTo(newMap);
     return marker;
   }
-  /* static mapMarkerForRestaurant(restaurant, map) {
-    const marker = new google.maps.Marker({
-      position: restaurant.latlng,
-      title: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant),
-      map: map,
-      animation: google.maps.Animation.DROP}
-    );
-    return marker;
-  } */
+  
 
 
    /**
@@ -229,33 +220,45 @@ class DBHelper {
     DBHelper.storeLatestFavouriteRestaurant(id, {"is_favorite": newState});
     DBHelper.addRequestToQueuedData(url, method);   
     callback(null, {id, value: newState});
-   
-  }
-
-  static saveReview(id, name, rating, comment, callback) {
-    // Create the POST body
-    const request = {
-      restaurant_id: id,
-      name: name,
-      rating: rating,
-      comments: comment
-    }  
-	
-	const url = `${DBHelper.DATABASE_REVIEWS_URL}`;
-    const method = "POST";
-    DBHelper.storeLatestReview(id,request);
-    DBHelper.addRequestToQueuedData(url,method, request);
-    callback(null,id);
-    // fetch(url, {method, body: request}).then(response => {
+    // fetch(url, {method}).then(response => {
      
     //   callback(null, response);
       
     // }).catch(error => callback(`Request failed. Error reponse: ${error}`, null));
+    
+  }
+
+  static saveReview(id, name, rating, comment, callback) {
+    // Create the POST body
+    const btn = document.getElementById("review-submit");
+    btn.onclick = null;
+    const request = {
+      restaurant_id: id,
+      name: name,
+      rating: rating,
+      comments: comment,
+      createdAt: Date.now()
+    }  
+    DBHelper.saveNewReview(id, request, (error, result) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+      callback(null, result);
+    });   
 	
   }
 
+  static saveNewReview(id, request, callback) {
+    const url = `${DBHelper.DATABASE_REVIEWS_URL}`;
+    const method = "POST";
+    DBHelper.storeLatestReview(id,request);
+    DBHelper.addRequestToQueuedData(url,method, request);
+    callback(null, null);
+  }
+
   static storeLatestFavouriteRestaurant(id, latestObj) {
-    if(!dbPromise) dbPromise = idb.open("mws-restaurant-review");
+    const dbPromise = idb.open("mws-restaurant-review");
     dbPromise.then(db => {
       console.log("Getting db transaction");
       const tx = db.transaction("restaurants", "readwrite");
@@ -329,7 +332,7 @@ class DBHelper {
    }
 
    static addRequestToQueuedData(url, method, body) {
-    const dbPromise = idb.open("mws-restaurant-review");
+    // const dbPromise = idb.open("mws-restaurant-review");
     dbPromise.then(db => {
       const tx = db.transaction("queuedData", "readwrite");
       tx
@@ -355,7 +358,8 @@ class DBHelper {
     let url;
     let method;
     let body;
-    if(!dbPromise) dbPromise = idb.open("mws-restaurant-review");
+
+    //const dbPromise = idb.open("mws-restaurant-review");
     dbPromise.then(db => {
       if (!db.objectStoreNames.length) {
         db.close();
@@ -386,9 +390,17 @@ class DBHelper {
             body: JSON.stringify(body),
             method: method
           }
+          console.log("Sending pending request")
           console.log("sending post from queue: ", properties);
-          fetch(url, properties).then(response => {
-            if (!response.ok && !response.redirected) {
+          fetch(url, properties) .catch(error => {
+            console.log(error);
+            return;
+          }).then(response => {
+            console.log("performed save");
+            console.log(response);
+            if (!response.ok || !response.redirected) {  
+              console.log("Failed DBHELPER")            
+              // callback();
               return;
             }
           })
@@ -401,16 +413,14 @@ class DBHelper {
                   cursor
                     .delete()
                     .then(() => {
+                      console.log("deleted queue")
                       callback();
                     })
                 })
               console.log("deleted pending item from queue");
             })
         })
-        .catch(error => {
-          console.log(error);
-          return;
-        })
+       
     })
   }
 
